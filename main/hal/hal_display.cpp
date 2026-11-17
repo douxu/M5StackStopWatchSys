@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 #include "hal.h"
+#include <apps/common/standby/standby.h>
 #include "utils/settings/settings.h"
 #include <mooncake_log.h>
 #include <M5GFX.h>
@@ -267,6 +268,7 @@ Hal::TouchPoint Hal::getTouchPoint()
             point.y = _cst820->getY();
         }
     }
+    if (standby::filterTouch(point.num > 0)) point.num = 0;
     return point;
 }
 
@@ -417,10 +419,12 @@ void Hal::lvglUnlock()
 
 void Hal::startLvglUpdate()
 {
+    standby::setDirectDisplay(false);
     _lvgl_update_enabled = true;
 }
 
 void Hal::stopLvglUpdate()
 {
+    standby::setDirectDisplay(true);
     _lvgl_update_enabled = false;
 }

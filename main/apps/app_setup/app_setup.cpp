@@ -45,6 +45,11 @@ void AppSetup::onOpen()
                      _destroy_menu = true;
                      _worker       = std::make_unique<BrightnessWorker>();
                  }},
+                {"Standby display",
+                 [&]() {
+                     _destroy_menu = true;
+                     _worker = std::make_unique<StandbyDisplayWorker>();
+                 }},
                 {"Volume",
                  [&]() {
                      _destroy_menu = true;
@@ -54,6 +59,11 @@ void AppSetup::onOpen()
                  [&]() {
                      _destroy_menu = true;
                      _worker       = std::make_unique<ButtonWorker>();
+                 }},
+                {"Wi-Fi Networks",
+                 [&]() {
+                     _destroy_menu = true;
+                     _worker       = std::make_unique<WifiScanWorker>();
                  }},
                 {"Wi-Fi",
                  [&]() {

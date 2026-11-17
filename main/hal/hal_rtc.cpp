@@ -49,18 +49,18 @@ void Hal::rtc_init()
 {
     mclog::tagInfo(_tag, "init");
 
+    // System time still needs the configured timezone if the hardware RTC fails.
+    std::string tz = getTimezone();
+    setenv("TZ", tz.c_str(), 1);
+    tzset();
+    mclog::tagInfo(_tag, "load timezone from nvs: {}", tz);
+
     _rx8130 = std::make_unique<RX8130_Class>();
     if (!_rx8130->begin(_i2c_bus)) {
         _rx8130.reset();
         mclog::tagError(_tag, "init failed");
         return;
     }
-
-    // Load timezone from settings
-    std::string tz = getTimezone();
-    setenv("TZ", tz.c_str(), 1);
-    tzset();
-    mclog::tagInfo(_tag, "load timezone from nvs: {}", tz);
 
     syncRtcTimeToSystem();
 }
@@ -71,7 +71,7 @@ void Hal::syncRtcTimeToSystem()
         return;
     }
 
-    struct tm tm_curr;
+    struct tm tm_curr = {};
     _rx8130->getTime(&tm_curr);
 
     // Temporarily set TZ to UTC to interpret RTC time as UTC
@@ -107,16 +107,16 @@ void Hal::syncSystemTimeToRtc()
     struct tm tm_curr;
     gmtime_r(&tv.tv_sec, &tm_curr);
 
-    _rx8130->setTime(&tm_curr);
-
     mclog::tagInfo(_tag, "system synced to rtc (UTC): {:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}",
                    tm_curr.tm_year + 1900, tm_curr.tm_mon + 1, tm_curr.tm_mday, tm_curr.tm_hour, tm_curr.tm_min,
                    tm_curr.tm_sec);
+    _rx8130->setTime(&tm_curr);
 }
 
 void Hal::setTimezone(std::string_view tz)
 {
-    setenv("TZ", tz.data(), 1);
+    const std::string timezone(tz);
+    setenv("TZ", timezone.c_str(), 1);
     tzset();
     Settings settings("system", true);
     settings.SetString("tz", std::string(tz));
@@ -126,7 +126,8 @@ void Hal::setTimezone(std::string_view tz)
 std::string Hal::getTimezone()
 {
     Settings settings("system", false);
-    return settings.GetString("tz", "GMT0");
+    // POSIX timezone offsets have the opposite sign: CST-8 means UTC+8.
+    return settings.GetString("tz", "CST-8");
 }
 
 DateYmd Hal::getDateYmd()

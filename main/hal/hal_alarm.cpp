@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 #include "hal.h"
+#include <apps/common/standby/standby.h>
 #include "utils/settings/settings.h"
 #include <apps/common/audio/audio.h>
 #include <algorithm>
@@ -241,10 +242,12 @@ bool Hal::saveAlarmStorage(const AlarmStorageSnapshot& snapshot)
 
 void Hal::startAlarm()
 {
+    standby::setAlarmActive(true);
     get_alarm_controller().start();
 }
 
 void Hal::stopAlarm()
 {
+    standby::setAlarmActive(false);
     get_alarm_controller().stop();
 }

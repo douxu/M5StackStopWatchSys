@@ -17,6 +17,7 @@
 #include <i2c_bus.h>
 #include <string_view>
 #include <array>
+#include <vector>
 #include <M5GFX.h>
 
 /**
@@ -262,6 +263,7 @@ public:
         Error,
     };
 
+    enum class WifiSecurity { Open, Personal, Unsupported };
     struct WifiStatus {
         bool enabled    = false;
         WifiMode mode   = WifiMode::Off;
@@ -273,11 +275,33 @@ public:
         std::string apSsid;
         std::string apUrl;
         std::string message;
+        WifiSecurity security = WifiSecurity::Unsupported;
     };
 
     void setWifiEnabled(bool enabled, bool saveToSettings = true);
     bool isWifiEnabled(bool loadFromSettings = false);
     WifiStatus getWifiStatus();
+
+    struct WifiNetwork {
+        std::string name;
+        WifiSecurity security = WifiSecurity::Unsupported;
+    };
+    struct WifiScanStatus {
+        bool scanning = false;
+        std::vector<WifiNetwork> networks;
+        std::string message;
+    };
+    enum class WifiConnectState { Idle, Connecting, Succeeded, Failed };
+    struct WifiConnectStatus {
+        WifiConnectState state = WifiConnectState::Idle;
+        std::string message;
+    };
+    void startWifiScan();
+    WifiScanStatus getWifiScanStatus();
+    void endWifiScan();
+    void connectWifi(const WifiNetwork& network, const std::string& password);
+    WifiConnectStatus getWifiConnectStatus();
+    void cancelWifiConnection();
 
     /* ---------------------------------- Badge --------------------------------- */
     bool loadBadgeImage(lv_obj_t* image);
@@ -311,6 +335,7 @@ private:
     void audio_init();
     void imu_init();
     void rtc_init();
+    void time_sync_tick(bool connected);
     void button_init();
     void fs_init();
     void wifi_init();

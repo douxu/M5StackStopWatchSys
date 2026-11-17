@@ -37,7 +37,9 @@
 # Build files
 build/
 cmake-build-*/
-/components/
+/components/*
+!/components/codex_usage/
+!/components/weather/
 managed_components/
 
 # PlatformIO

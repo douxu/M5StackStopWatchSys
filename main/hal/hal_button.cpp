@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 #include "hal.h"
+#include <apps/common/standby/standby.h>
 #include "utils/settings/settings.h"
 #include <apps/common/audio/audio.h>
 #include <mooncake_log.h>
@@ -34,6 +35,11 @@ void Hal::button_init()
 
 void Hal::updateButtonStates()
 {
+    if (standby::suppressButtons()) {
+        btnA = m5::Button_Class();
+        btnB = m5::Button_Class();
+        return;
+    }
     btnA.setRawState(millis(), !gpio_get_level(USER_BUTTONA_PIN));
     btnB.setRawState(millis(), !gpio_get_level(USER_BUTTONB_PIN));
     // btnPwr.setRawState(millis(), pmic_get_pwr_btn_state());

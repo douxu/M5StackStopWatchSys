@@ -23,6 +23,7 @@ public:
         std::string btnRightText;
     };
 
+    bool isRunning() const { return _stopwatch && _stopwatch->getState() == model::Stopwatch::State_t::Running; }
     void init(lv_obj_t* parent);
     void update(bool updateButtonStates = true);
 

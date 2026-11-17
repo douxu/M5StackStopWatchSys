@@ -4,6 +4,7 @@
  * The simulation core is adapted from Flowduino/STOPWATCH-FluidBox.
  */
 #include "app_fluidbox.h"
+#include <apps/common/standby/standby.h>
 #include "FluidBoxConfig.h"
 
 #include <assets/assets.h>
@@ -94,6 +95,7 @@ void AppFluidBox::onOpen()
 
 void AppFluidBox::onRunning()
 {
+    if (standby::isVisible()) return;
     GetHAL().updateButtonStates();
     const auto event = _key_manager ? _key_manager->update(false) : input::KeyEvent::None;
 
@@ -208,6 +210,9 @@ void AppFluidBox::renderLoop()
 
 void AppFluidBox::renderFrame()
 {
+    // Serialize direct framebuffer access with standby LVGL ownership changes.
+    LvglLockGuard lock;
+    if (standby::isVisible()) return;
     auto& display = GetHAL().getDisplay();
 
     display.startWrite();

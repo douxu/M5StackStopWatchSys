@@ -40,6 +40,16 @@ protected:
  * @brief
  *
  */
+class StandbyDisplayWorker : public WorkerBase {
+public:
+    StandbyDisplayWorker();
+    ~StandbyDisplayWorker();
+    void update() override;
+private:
+    class View;
+    std::unique_ptr<View> _view;
+};
+
 class BrightnessWorker : public WorkerBase {
 public:
     BrightnessWorker();
@@ -106,6 +116,17 @@ private:
  * @brief
  *
  */
+class WifiScanWorker : public WorkerBase {
+public:
+    WifiScanWorker();
+    ~WifiScanWorker();
+    void update() override;
+
+private:
+    class WifiScanView;
+    std::unique_ptr<WifiScanView> _view;
+};
+
 class SetTimeWorker : public WorkerBase {
 public:
     SetTimeWorker();

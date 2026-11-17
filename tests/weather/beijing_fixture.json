@@ -1,0 +1,24 @@
+{
+  "current_condition": [
+    {
+      "temp_C": "16",
+      "weatherCode": "116"
+    }
+  ],
+  "nearest_area": [
+    {
+      "areaName": [
+        {
+          "value": "Beijing"
+        }
+      ],
+      "country": [
+        {
+          "value": "China"
+        }
+      ],
+      "latitude": "39.929",
+      "longitude": "116.388"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+# Application sources; weather and Codex services are standalone components.
 file(GLOB_RECURSE MY_SRCS
     "apps/*.c"
     "apps/*.cc"

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 #include "app_stopwatch.h"
+#include <apps/common/standby/standby.h>
 #include <hal/hal.h>
 #include <mooncake.h>
 #include <mooncake_log.h>
@@ -46,6 +47,7 @@ void AppStopWatch::onRunning()
     LvglLockGuard lock;
 
     _view->update(false);
+    standby::setStopwatchRunning(_view->isRunning());
 }
 
 void AppStopWatch::onClose()
@@ -56,5 +58,6 @@ void AppStopWatch::onClose()
 
     LvglLockGuard lock;
 
+    standby::setStopwatchRunning(false);
     _view.reset();
 }

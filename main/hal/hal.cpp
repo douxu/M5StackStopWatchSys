@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 #include "hal.h"
+#include <weather.h>
+#include <apps/common/standby/standby.h>
+#include <codex_usage.h>
+#include "utils/settings/settings.h"
 #include <memory>
 #include <mooncake_log.h>
 #include <nvs_flash.h>
@@ -45,6 +49,25 @@ void Hal::init()
     button_init();
     fs_init();
     wifi_init();
+    weather::init({
+        [] { return GetHAL().getWifiStatus().connected; },
+        [] { return GetHAL().millis(); },
+        [](const std::string& key, int fallback) -> int { return Settings("weather").GetInt(key, fallback); },
+        [](const std::string& key, const std::string& fallback) { return Settings("weather").GetString(key, fallback); },
+        [](const std::string& key, int value) { Settings("weather", true).SetInt(key, value); },
+        [](const std::string& key, const std::string& value) { Settings("weather", true).SetString(key, value); },
+        [](const std::string& key) { Settings("weather", true).EraseKey(key); },
+    });
+    codex_usage::init({
+        [] {
+            auto net = GetHAL().getWifiStatus();
+            return weather::mode() == weather::Mode::Codex && net.connected && !net.configMode && !net.badgeMode;
+        },
+        [] { return GetHAL().millis(); },
+        [] { return Settings("codex_usage").GetString("pair_code"); },
+        [](const std::string& code) { Settings("codex_usage", true).SetString("pair_code", code); },
+    });
+    standby::init();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -69,6 +92,8 @@ std::uint32_t Hal::millis()
 void Hal::feedTheDog()
 {
     wifi_tick();
+    time_sync_tick(getWifiStatus().connected);
+    standby::tick();
     vTaskDelay(1);
 }
 
@@ -159,7 +184,6 @@ void Hal::i2c_detect()
 /* -------------------------------------------------------------------------- */
 /*                                    Guide                                   */
 /* -------------------------------------------------------------------------- */
-#include "utils/settings/settings.h"
 
 namespace {
 
